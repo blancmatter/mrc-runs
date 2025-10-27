@@ -3,36 +3,80 @@
 {% block title %}Login - MRC Runs{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
+<style>
+    /* Force light theme for login form */
+    .login-card {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+    }
+    .login-card .form-label {
+        color: #212529 !important;
+    }
+    .login-card .form-control {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da !important;
+    }
+    .login-card .form-control:focus {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border-color: #86b7fe !important;
+    }
+    .login-card a {
+        color: #0d6efd !important;
+    }
+    .login-card a:hover {
+        color: #0a58ca !important;
+    }
+</style>
 
-<form method="post" style="max-width: 400px; margin: 0 auto;">
-    {% csrf_token %}
-    <div style="margin-bottom: 15px;">
-        <label for="id_username" style="display: block; margin-bottom: 5px; font-weight: bold;">Username:</label>
-        <input type="text" name="username" id="id_username" required 
-               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-    </div>
-    <div style="margin-bottom: 15px;">
-        <label for="id_password" style="display: block; margin-bottom: 5px; font-weight: bold;">Password:</label>
-        <input type="password" name="password" id="id_password" required 
-               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-    </div>
-    
-    {% if form.errors %}
-    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-        Your username and password didn't match. Please try again.
-    </div>
-    {% endif %}
-    
-    <button type="submit" 
-            style="background-color: #2c3e50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
-        Login
-    </button>
-    
-    <input type="hidden" name="next" value="{{ next }}">
-</form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm login-card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4" style="color: #2c3e50;">Login</h2>
 
-<p style="text-align: center; margin-top: 20px;">
-    <a href="{% url 'run_list' %}">Back to runs list</a>
-</p>
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Your username and password didn't match. Please try again.
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" name="password" id="id_password" class="form-control" required>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Login
+                            </button>
+                        </div>
+
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="mb-2">
+                            Don't have an account?
+                            <a href="{% url 'register' %}" class="text-decoration-none">Register here</a>
+                        </p>
+                        <a href="{% url 'run_list' %}" class="text-muted text-decoration-none">
+                            <small>← Back to runs list</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

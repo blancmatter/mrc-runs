@@ -3,13 +3,42 @@
 {% block title %}Register - MRC Runs{% endblock %}
 
 {% block content %}
+<style>
+    /* Force light theme for registration form */
+    .registration-card {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+    }
+    .registration-card .form-label {
+        color: #212529 !important;
+    }
+    .registration-card .form-control {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da !important;
+    }
+    .registration-card .form-control:focus {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border-color: #86b7fe !important;
+    }
+    .registration-card .form-text {
+        color: #6c757d !important;
+    }
+    .registration-card a {
+        color: #0d6efd !important;
+    }
+    .registration-card a:hover {
+        color: #0a58ca !important;
+    }
+</style>
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm registration-card">
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Create Your Account</h2>
-                    <p class="text-center text-muted mb-4">Join MRC Runs and start signing up for events!</p>
+                    <h2 class="card-title text-center mb-4" style="color: #2c3e50;">Create Your Account</h2>
+                    <p class="text-center mb-4" style="color: #6c757d;">Join MRC Runs and start signing up for events!</p>
 
                     <form method="post" novalidate>
                         {% csrf_token %}
@@ -21,7 +50,7 @@
                         {% endif %}
 
                         <!-- Account Information Section -->
-                        <h5 class="mb-3 text-primary">Account Information</h5>
+                        <h5 class="mb-3" style="color: #3498db;">Account Information</h5>
 
                         <div class="mb-3">
                             <label for="{{ form.username.id_for_label }}" class="form-label">
@@ -86,7 +115,7 @@
                         <hr class="my-4">
 
                         <!-- Personal Information Section -->
-                        <h5 class="mb-3 text-primary">Personal Information</h5>
+                        <h5 class="mb-3" style="color: #3498db;">Personal Information</h5>
 
                         <div class="mb-3">
                             <label for="{{ form.phone_number.id_for_label }}" class="form-label">
@@ -121,8 +150,8 @@
                         <hr class="my-4">
 
                         <!-- Emergency Contact Section -->
-                        <h5 class="mb-3 text-primary">Emergency Contact</h5>
-                        <p class="text-muted small mb-3">Required for safety purposes during runs.</p>
+                        <h5 class="mb-3" style="color: #3498db;">Emergency Contact</h5>
+                        <p class="small mb-3" style="color: #6c757d;">Required for safety purposes during runs.</p>
 
                         <div class="mb-3">
                             <label for="{{ form.emergency_contact_name.id_for_label }}" class="form-label">
