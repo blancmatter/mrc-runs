@@ -202,7 +202,8 @@ class RegistrationFormTest(TestCase):
     def test_valid_registration_form(self):
         """Test registration form with valid data."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -216,7 +217,8 @@ class RegistrationFormTest(TestCase):
     def test_registration_form_missing_required_fields(self):
         """Test registration form with missing required fields."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -230,7 +232,8 @@ class RegistrationFormTest(TestCase):
     def test_registration_form_password_mismatch(self):
         """Test registration form with mismatched passwords."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'DifferentPass456!',
@@ -241,12 +244,18 @@ class RegistrationFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('password2', form.errors)
 
-    def test_registration_form_duplicate_username(self):
-        """Test registration form with existing username."""
-        User.objects.create_user(username='existinguser', password='pass')
+    def test_registration_form_duplicate_email_as_username(self):
+        """Test registration form prevents duplicate email (used as username)."""
+        # Create a user with email as username
+        User.objects.create_user(
+            username='existing@example.com',
+            email='existing@example.com',
+            password='pass'
+        )
         form_data = {
-            'username': 'existinguser',
-            'email': 'new@example.com',
+            'first_name': 'New',
+            'last_name': 'User',
+            'email': 'existing@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
             'emergency_contact_name': 'Jane Doe',
@@ -254,7 +263,7 @@ class RegistrationFormTest(TestCase):
         }
         form = RegistrationForm(data=form_data)
         self.assertFalse(form.is_valid())
-        self.assertIn('username', form.errors)
+        self.assertIn('email', form.errors)
 
     def test_registration_form_duplicate_email(self):
         """Test registration form with existing email."""
@@ -264,7 +273,8 @@ class RegistrationFormTest(TestCase):
             password='pass'
         )
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'existing@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -293,7 +303,8 @@ class RegistrationViewTest(TestCase):
     def test_successful_registration(self):
         """Test successful user registration."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -307,10 +318,12 @@ class RegistrationViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('run_list'))
 
-        # Check user was created
-        self.assertTrue(User.objects.filter(username='newuser').exists())
-        user = User.objects.get(username='newuser')
+        # Check user was created with email as username
+        self.assertTrue(User.objects.filter(username='newuser@example.com').exists())
+        user = User.objects.get(username='newuser@example.com')
         self.assertEqual(user.email, 'newuser@example.com')
+        self.assertEqual(user.first_name, 'New')
+        self.assertEqual(user.last_name, 'User')
 
         # Check UserProfile was created
         self.assertTrue(hasattr(user, 'profile'))
@@ -321,7 +334,8 @@ class RegistrationViewTest(TestCase):
     def test_registration_with_optional_fields_empty(self):
         """Test registration with optional fields left empty."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -332,14 +346,15 @@ class RegistrationViewTest(TestCase):
         response = self.client.post(self.register_url, data=form_data)
 
         self.assertEqual(response.status_code, 302)
-        user = User.objects.get(username='newuser')
+        user = User.objects.get(username='newuser@example.com')
         self.assertEqual(user.profile.phone_number, '')
         self.assertIsNone(user.profile.date_of_birth)
 
     def test_registration_auto_login(self):
         """Test that user is automatically logged in after registration."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'newuser@example.com',
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
@@ -350,12 +365,13 @@ class RegistrationViewTest(TestCase):
 
         # Check user is authenticated
         self.assertTrue(response.context['user'].is_authenticated)
-        self.assertEqual(response.context['user'].username, 'newuser')
+        self.assertEqual(response.context['user'].username, 'newuser@example.com')
 
     def test_registration_with_invalid_data(self):
         """Test registration with invalid data."""
         form_data = {
-            'username': 'newuser',
+            'first_name': 'New',
+            'last_name': 'User',
             'email': 'invalid-email',  # Invalid email
             'password1': 'ComplexPass123!',
             'password2': 'DifferentPass!',  # Mismatched password
@@ -369,7 +385,7 @@ class RegistrationViewTest(TestCase):
         self.assertTemplateUsed(response, 'registration/register.html')
 
         # User should not be created
-        self.assertFalse(User.objects.filter(username='newuser').exists())
+        self.assertFalse(User.objects.filter(email='invalid-email').exists())
 
     def test_authenticated_user_redirect(self):
         """Test that authenticated users are redirected from registration page."""

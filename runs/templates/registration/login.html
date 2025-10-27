@@ -39,7 +39,7 @@
 
                     {% if form.errors %}
                     <div class="alert alert-danger" role="alert">
-                        Your username and password didn't match. Please try again.
+                        Your email and password didn't match. Please try again.
                     </div>
                     {% endif %}
 
@@ -47,8 +47,8 @@
                         {% csrf_token %}
 
                         <div class="mb-3">
-                            <label for="id_username" class="form-label">Username</label>
-                            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+                            <label for="id_username" class="form-label">Email Address</label>
+                            <input type="email" name="username" id="id_username" class="form-control" placeholder="e.g., john.smith@example.com" required autofocus>
                         </div>
 
                         <div class="mb-3">
