@@ -70,7 +70,8 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            # Specify backend for auto-login when multiple backends are configured
+            login(request, user, backend='runs.backends.EmailOrUsernameBackend')
             messages.success(request, f'Welcome, {user.username}! Your account has been created successfully.')
             return redirect('run_list')
     else:

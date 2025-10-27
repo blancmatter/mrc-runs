@@ -395,3 +395,78 @@ class RegistrationViewTest(TestCase):
         response = self.client.get(self.register_url)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('run_list'))
+
+
+class EmailOrUsernameAuthenticationTest(TestCase):
+    """Test cases for custom email/username authentication backend."""
+
+    def setUp(self):
+        self.client = Client()
+        # Create a legacy user with separate username
+        self.legacy_user = User.objects.create_user(
+            username='legacyuser',
+            email='legacy@example.com',
+            password='testpass123'
+        )
+        # Create a new user where email is the username
+        self.new_user = User.objects.create_user(
+            username='newuser@example.com',
+            email='newuser@example.com',
+            password='testpass123',
+            first_name='New',
+            last_name='User'
+        )
+
+    def test_login_with_username(self):
+        """Test login with username (legacy users)."""
+        success = self.client.login(username='legacyuser', password='testpass123')
+        self.assertTrue(success)
+        self.assertTrue(self.client.session['_auth_user_id'])
+
+    def test_login_with_email_for_legacy_user(self):
+        """Test that legacy users can also log in with their email."""
+        success = self.client.login(username='legacy@example.com', password='testpass123')
+        self.assertTrue(success)
+        self.assertTrue(self.client.session['_auth_user_id'])
+
+    def test_login_with_email_as_username(self):
+        """Test login with email (new users where email is username)."""
+        success = self.client.login(username='newuser@example.com', password='testpass123')
+        self.assertTrue(success)
+        self.assertTrue(self.client.session['_auth_user_id'])
+
+    def test_login_with_wrong_password(self):
+        """Test login fails with wrong password."""
+        success = self.client.login(username='legacyuser', password='wrongpassword')
+        self.assertFalse(success)
+
+    def test_login_with_nonexistent_user(self):
+        """Test login fails with nonexistent user."""
+        success = self.client.login(username='nonexistent@example.com', password='testpass123')
+        self.assertFalse(success)
+
+    def test_login_via_form_with_email(self):
+        """Test login through the login form using email."""
+        response = self.client.post(reverse('login'), {
+            'username': 'legacy@example.com',
+            'password': 'testpass123'
+        })
+
+        # Check user is logged in by checking session
+        self.assertIn('_auth_user_id', self.client.session)
+        # Verify correct user is logged in
+        user_id = int(self.client.session['_auth_user_id'])
+        self.assertEqual(user_id, self.legacy_user.id)
+
+    def test_login_via_form_with_username(self):
+        """Test login through the login form using username."""
+        response = self.client.post(reverse('login'), {
+            'username': 'legacyuser',
+            'password': 'testpass123'
+        })
+
+        # Check user is logged in by checking session
+        self.assertIn('_auth_user_id', self.client.session)
+        # Verify correct user is logged in
+        user_id = int(self.client.session['_auth_user_id'])
+        self.assertEqual(user_id, self.legacy_user.id)
