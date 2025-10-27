@@ -29,10 +29,23 @@ A Django-based web application for managing running events, allowing users to vi
 
 ### Setup Instructions
 
+Skip steps 2 and 3 if you wish to use your native python install for the requirements
+
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/blancmatter/mrc-runs.git
    cd mrc-runs
+   ```
+2. **Install venv (if not already installed)**:
+   ```bash
+   pip install venv
+   ```
+
+2. **Create & Activate Virtual Environment**:
+   ```bash
+   python -m venv venv
+   (linux) source venv/bin/activate
+   (powershell) .venv/bin/Activate.ps1
    ```
 
 2. **Install dependencies**:
