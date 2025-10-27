@@ -60,8 +60,12 @@ class RegistrationForm(UserCreationForm):
         # Add Bootstrap classes to password fields
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password2'].widget.attrs['class'] = 'form-control'
-        # Update password help text
-        self.fields['password1'].help_text = 'At least 8 characters. Cannot be entirely numeric.'
+        # Update password help text with all validation requirements
+        self.fields['password1'].help_text = (
+            'Your password must contain at least 8 characters, '
+            'cannot be too similar to your other personal information, '
+            'cannot be a commonly used password, and cannot be entirely numeric.'
+        )
 
     def clean_email(self):
         """Validate that the email is unique (used as username)."""

@@ -1,6 +1,9 @@
+import logging
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.db.models import Q
+
+logger = logging.getLogger(__name__)
 
 
 class EmailOrUsernameBackend(ModelBackend):
@@ -43,12 +46,23 @@ class EmailOrUsernameBackend(ModelBackend):
             User().set_password(password)
             return None
         except User.MultipleObjectsReturned:
-            # If multiple users have the same email, try exact username match
+            # Edge case: Multiple users share the same email address
+            # This should be rare as we validate unique emails during registration
+            # Try exact username match as fallback
+            logger.warning(
+                f'Multiple users found for email: {username}. '
+                'Attempting exact username match. '
+                'Note: This assumes usernames remain unique in the database.'
+            )
             try:
                 user = User.objects.get(username=username)
                 if user.check_password(password):
                     return user
             except User.DoesNotExist:
+                return None
+            except User.MultipleObjectsReturned:
+                # This should never happen as username is unique by default
+                logger.error(f'Multiple users found with username: {username}')
                 return None
 
         return None

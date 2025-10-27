@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from .models import Run, SignUp
@@ -70,9 +70,16 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Specify backend for auto-login when multiple backends are configured
-            login(request, user, backend='runs.backends.EmailOrUsernameBackend')
-            messages.success(request, f'Welcome, {user.username}! Your account has been created successfully.')
+            # Authenticate to set the backend attribute, then auto-login
+            # Use the raw password before it's hashed to authenticate
+            authenticated_user = authenticate(
+                request,
+                username=user.username,
+                password=form.cleaned_data['password1']
+            )
+            if authenticated_user is not None:
+                login(request, authenticated_user)
+                messages.success(request, f'Welcome, {user.username}! Your account has been created successfully.')
             return redirect('run_list')
     else:
         form = RegistrationForm()
