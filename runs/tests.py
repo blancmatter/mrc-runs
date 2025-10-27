@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from datetime import date, time
-from .models import Run, SignUp
+from .models import Run, SignUp, UserProfile
+from .forms import RegistrationForm
 
 
 class RunModelTest(TestCase):
@@ -154,9 +155,227 @@ class RunViewsTest(TestCase):
     def test_cancel_signup(self):
         """Test cancelling a sign-up."""
         SignUp.objects.create(user=self.user, run=self.run)
-        
+
         self.client.login(username='testuser', password='testpass')
         response = self.client.get(reverse('run_cancel', args=[self.run.id]))
-        
+
         self.assertEqual(response.status_code, 302)
         self.assertFalse(SignUp.objects.filter(user=self.user, run=self.run).exists())
+
+
+class UserProfileModelTest(TestCase):
+    """Test cases for UserProfile model."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        self.profile = UserProfile.objects.create(
+            user=self.user,
+            phone_number='07123456789',
+            emergency_contact_name='John Doe',
+            emergency_contact_phone='07987654321',
+            date_of_birth=date(1990, 1, 1)
+        )
+
+    def test_profile_creation(self):
+        """Test that a user profile can be created."""
+        self.assertEqual(self.profile.user, self.user)
+        self.assertEqual(self.profile.emergency_contact_name, 'John Doe')
+        self.assertEqual(self.profile.emergency_contact_phone, '07987654321')
+
+    def test_profile_str_representation(self):
+        """Test the string representation of a profile."""
+        expected = f"{self.user.username}'s Profile"
+        self.assertEqual(str(self.profile), expected)
+
+    def test_profile_relationship(self):
+        """Test the one-to-one relationship with User."""
+        self.assertEqual(self.user.profile, self.profile)
+
+
+class RegistrationFormTest(TestCase):
+    """Test cases for RegistrationForm."""
+
+    def test_valid_registration_form(self):
+        """Test registration form with valid data."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+            'phone_number': '07987654321',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_registration_form_missing_required_fields(self):
+        """Test registration form with missing required fields."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            # Missing emergency contact fields
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('emergency_contact_name', form.errors)
+        self.assertIn('emergency_contact_phone', form.errors)
+
+    def test_registration_form_password_mismatch(self):
+        """Test registration form with mismatched passwords."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'DifferentPass456!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('password2', form.errors)
+
+    def test_registration_form_duplicate_username(self):
+        """Test registration form with existing username."""
+        User.objects.create_user(username='existinguser', password='pass')
+        form_data = {
+            'username': 'existinguser',
+            'email': 'new@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('username', form.errors)
+
+    def test_registration_form_duplicate_email(self):
+        """Test registration form with existing email."""
+        User.objects.create_user(
+            username='existinguser',
+            email='existing@example.com',
+            password='pass'
+        )
+        form_data = {
+            'username': 'newuser',
+            'email': 'existing@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
+
+
+class RegistrationViewTest(TestCase):
+    """Test cases for registration view."""
+
+    def setUp(self):
+        self.client = Client()
+        self.register_url = reverse('register')
+
+    def test_registration_page_loads(self):
+        """Test that the registration page loads successfully."""
+        response = self.client.get(self.register_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register.html')
+        self.assertIsInstance(response.context['form'], RegistrationForm)
+
+    def test_successful_registration(self):
+        """Test successful user registration."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+            'phone_number': '07987654321',
+        }
+        response = self.client.post(self.register_url, data=form_data)
+
+        # Check redirect after successful registration
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('run_list'))
+
+        # Check user was created
+        self.assertTrue(User.objects.filter(username='newuser').exists())
+        user = User.objects.get(username='newuser')
+        self.assertEqual(user.email, 'newuser@example.com')
+
+        # Check UserProfile was created
+        self.assertTrue(hasattr(user, 'profile'))
+        self.assertEqual(user.profile.emergency_contact_name, 'Jane Doe')
+        self.assertEqual(user.profile.emergency_contact_phone, '07123456789')
+        self.assertEqual(user.profile.phone_number, '07987654321')
+
+    def test_registration_with_optional_fields_empty(self):
+        """Test registration with optional fields left empty."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+            # phone_number and date_of_birth are optional
+        }
+        response = self.client.post(self.register_url, data=form_data)
+
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(username='newuser')
+        self.assertEqual(user.profile.phone_number, '')
+        self.assertIsNone(user.profile.date_of_birth)
+
+    def test_registration_auto_login(self):
+        """Test that user is automatically logged in after registration."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!',
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+        }
+        response = self.client.post(self.register_url, data=form_data, follow=True)
+
+        # Check user is authenticated
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertEqual(response.context['user'].username, 'newuser')
+
+    def test_registration_with_invalid_data(self):
+        """Test registration with invalid data."""
+        form_data = {
+            'username': 'newuser',
+            'email': 'invalid-email',  # Invalid email
+            'password1': 'ComplexPass123!',
+            'password2': 'DifferentPass!',  # Mismatched password
+            'emergency_contact_name': 'Jane Doe',
+            'emergency_contact_phone': '07123456789',
+        }
+        response = self.client.post(self.register_url, data=form_data)
+
+        # Should not redirect, stays on registration page
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register.html')
+
+        # User should not be created
+        self.assertFalse(User.objects.filter(username='newuser').exists())
+
+    def test_authenticated_user_redirect(self):
+        """Test that authenticated users are redirected from registration page."""
+        user = User.objects.create_user(username='testuser', password='testpass')
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get(self.register_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('run_list'))
