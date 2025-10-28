@@ -43,6 +43,10 @@ class Run(models.Model):
     def available_spots(self):
         """Return the number of available spots."""
         return max(0, self.max_capacity - self.get_signups_count())
+    
+    def taken_spots(self):
+        """Return the number of available spots."""
+        return max(0, self.get_signups_count())
 
 
 class SignUp(models.Model):

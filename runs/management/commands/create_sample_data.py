@@ -25,28 +25,28 @@ class Command(BaseCommand):
         # Create some test runs
         runs_data = [
             {
-                'date': date(2025, 10, 20),
-                'time': time(9, 0),
-                'meeting_place': 'Main Entrance',
-                'venue': 'Victoria Park',
+                'date': date(2025, 11, 19),
+                'time': time(6, 30),
+                'meeting_place': 'Liverpool Central Station',
+                'venue': 'Ship & Mitre',
                 'length_km': 5.0,
-                'max_capacity': 20
+                'max_capacity': 60
             },
             {
-                'date': date(2025, 10, 22),
+                'date': date(2025, 10, 26),
                 'time': time(18, 30),
-                'meeting_place': 'Canal Towpath',
-                'venue': 'Regent\'s Canal',
-                'length_km': 10.0,
-                'max_capacity': 15
+                'meeting_place': 'Sefton Park Cafe',
+                'venue': 'Black Cat Rose Lane',
+                'length_km': 5.0,
+                'max_capacity': 3
             },
             {
-                'date': date(2025, 10, 25),
-                'time': time(7, 0),
-                'meeting_place': 'North Gate',
-                'venue': 'Hampstead Heath',
-                'length_km': 8.5,
-                'max_capacity': 3
+                'date': date(2025, 11, 22),
+                'time': time(13, 0),
+                'meeting_place': 'Black Lodge',
+                'venue': 'Monthly Run - Black Lodge',
+                'length_km': 5.0,
+                'max_capacity': 80
             },
         ]
         

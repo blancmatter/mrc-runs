@@ -1,13 +1,13 @@
 {% extends "runs/base.html" %}
 
-{% block title %}Available Runs - MRC Runs{% endblock %}
+{% block title %}Upcomming Runs - MRC Runs{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 mb-0">
-                <i class="fas fa-calendar-alt me-2"></i>Available Runs
+                <i class="fas fa-calendar-alt me-2"></i>Upcoming Runs
             </h2>
             {% if user.is_staff %}
                 <a href="/admin/runs/run/" class="btn btn-outline-primary btn-sm">
@@ -35,7 +35,7 @@
                                 <th><i class="fas fa-map-marker-alt me-1"></i>Venue</th>
                                 <th><i class="fas fa-meeting-room me-1"></i>Meeting Place</th>
                                 <th class="text-end"><i class="fas fa-route me-1"></i>Distance</th>
-                                <th class="text-center"><i class="fas fa-users me-1"></i>Capacity</th>
+                                <th class="text-center"><i class="fas fa-users me-1"></i>Signups</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -56,7 +56,7 @@
                                     {% if run.is_full %}
                                         <span class="badge bg-danger">FULL</span>
                                     {% else %}
-                                        <span class="badge bg-success">{{ run.available_spots }}/{{ run.max_capacity }}</span>
+                                        <span class="badge bg-success">{{ run.taken_spots }}/{{ run.max_capacity }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
@@ -102,7 +102,7 @@
                                 {% if run.is_full %}
                                     <span class="badge bg-danger capacity-badge">FULL</span>
                                 {% else %}
-                                    <span class="badge bg-success capacity-badge">{{ run.available_spots }}/{{ run.max_capacity }}</span>
+                                    <span class="badge bg-success capacity-badge">{{ run.taken_spots }}/{{ run.max_capacity }}</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -127,32 +127,36 @@
                             </div>
                         </div>
                         
-                        <div class="capacity-info mt-3">
-                            {% if user.is_authenticated %}
-                                {% if run.id in user_signups %}
-                                    <a href="{% url 'run_cancel' run.id %}" 
-                                       class="btn btn-cancel text-white"
-                                       onclick="return confirm('Cancel your sign-up?');">
-                                        <i class="fas fa-times me-2"></i>Cancel Sign-up
-                                    </a>
-                                {% elif run.is_full %}
-                                    <button class="btn btn-full" disabled>
-                                        <i class="fas fa-ban me-2"></i>Run is Full
-                                    </button>
+                        <div class="d-flex justify-content-between align-items-end mt-3">
+                            <div class="action-buttons">
+                                {% if user.is_authenticated %}
+                                    {% if run.id in user_signups %}
+                                        <a href="{% url 'run_cancel' run.id %}" 
+                                           class="btn btn-cancel text-white btn-sm"
+                                           onclick="return confirm('Cancel your sign-up?');">
+                                            <i class="fas fa-times me-1"></i>Cancel
+                                        </a>
+                                    {% elif run.is_full %}
+                                        <button class="btn btn-full btn-sm" disabled>
+                                            <i class="fas fa-ban me-1"></i>Full
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'run_signup' run.id %}" 
+                                           class="btn btn-signup text-white btn-sm">
+                                            <i class="fas fa-plus me-1"></i>Sign Up
+                                        </a>
+                                    {% endif %}
                                 {% else %}
-                                    <a href="{% url 'run_signup' run.id %}" 
-                                       class="btn btn-signup text-white">
-                                        <i class="fas fa-plus me-2"></i>Sign Up Now
-                                    </a>
+                                    <small class="text-muted">Login to sign up</small>
                                 {% endif %}
-                            {% else %}
-                                <div class="text-center">
-                                    <p class="text-muted mb-2">Please login to sign up</p>
-                                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
-                                        <i class="fas fa-sign-in-alt me-1"></i>Login
-                                    </a>
-                                </div>
-                            {% endif %}
+                            </div>
+                            <div class="capacity-display">
+                                {% if run.is_full %}
+                                    <small class="text-danger"><i class="fas fa-users me-1"></i>Full</small>
+                                {% else %}
+                                    <small class="text-muted"><i class="fas fa-users me-1"></i>{{ run.available_spots }} spots left</small>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
