@@ -1,0 +1,222 @@
+{% extends "runs/base.html" %}
+
+{% block title %}Register - MRC Runs{% endblock %}
+
+{% block content %}
+<style>
+    /* Force light theme for registration form */
+    .registration-card {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+    }
+    .registration-card .form-label {
+        color: #212529 !important;
+    }
+    .registration-card .form-control {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da !important;
+    }
+    .registration-card .form-control:focus {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border-color: #86b7fe !important;
+    }
+    .registration-card .form-text {
+        color: #6c757d !important;
+    }
+    .registration-card a {
+        color: #0d6efd !important;
+    }
+    .registration-card a:hover {
+        color: #0a58ca !important;
+    }
+</style>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm registration-card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4" style="color: #2c3e50;">Create Your Account</h2>
+                    <p class="text-center mb-4" style="color: #6c757d;">Join MRC Runs and start signing up for events!</p>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Account Information Section -->
+                        <h5 class="mb-3" style="color: #3498db;">Account Information</h5>
+
+                        <div class="mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                First Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.first_name.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.first_name.help_text %}
+                            <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                Last Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.last_name.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.last_name.help_text %}
+                            <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                Email Address <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.email.help_text %}
+                            <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                Password <span class="text-danger">*</span>
+                            </label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password1.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.password1.help_text %}
+                            <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                Confirm Password <span class="text-danger">*</span>
+                            </label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password2.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.password2.help_text %}
+                            <small class="form-text text-muted">{{ form.password2.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Personal Information Section -->
+                        <h5 class="mb-3" style="color: #3498db;">Personal Information</h5>
+
+                        <div class="mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                Phone Number
+                            </label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.phone_number.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.phone_number.help_text %}
+                            <small class="form-text text-muted">{{ form.phone_number.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                                Date of Birth
+                            </label>
+                            {{ form.date_of_birth }}
+                            {% if form.date_of_birth.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.date_of_birth.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.date_of_birth.help_text %}
+                            <small class="form-text text-muted">{{ form.date_of_birth.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Emergency Contact Section -->
+                        <h5 class="mb-3" style="color: #3498db;">Emergency Contact</h5>
+                        <p class="small mb-3" style="color: #6c757d;">Required for safety purposes during runs.</p>
+
+                        <div class="mb-3">
+                            <label for="{{ form.emergency_contact_name.id_for_label }}" class="form-label">
+                                Emergency Contact Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.emergency_contact_name }}
+                            {% if form.emergency_contact_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.emergency_contact_name.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.emergency_contact_name.help_text %}
+                            <small class="form-text text-muted">{{ form.emergency_contact_name.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.emergency_contact_phone.id_for_label }}" class="form-label">
+                                Emergency Contact Phone <span class="text-danger">*</span>
+                            </label>
+                            {{ form.emergency_contact_phone }}
+                            {% if form.emergency_contact_phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.emergency_contact_phone.errors }}
+                            </div>
+                            {% endif %}
+                            {% if form.emergency_contact_phone.help_text %}
+                            <small class="form-text text-muted">{{ form.emergency_contact_phone.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Already have an account?
+                            <a href="{% url 'login' %}" class="text-decoration-none">Login here</a>
+                        </p>
+                        <a href="{% url 'run_list' %}" class="text-muted text-decoration-none">
+                            <small>← Back to runs list</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

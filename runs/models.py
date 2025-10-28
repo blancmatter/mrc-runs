@@ -3,6 +3,20 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 
+class UserProfile(models.Model):
+    """Extended user profile with emergency contact information."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone_number = models.CharField(max_length=20, blank=True, help_text="Your phone number")
+    emergency_contact_name = models.CharField(max_length=100, help_text="Emergency contact name")
+    emergency_contact_phone = models.CharField(max_length=20, help_text="Emergency contact phone")
+    date_of_birth = models.DateField(null=True, blank=True, help_text="Your date of birth")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+
 class Run(models.Model):
     """Model representing a running event."""
     date = models.DateField()

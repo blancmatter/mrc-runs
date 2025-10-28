@@ -5,8 +5,11 @@ A Django-based web application for managing running events, allowing users to vi
 ## Features
 
 ### User Features
+- **Self-Registration**: Create your own account with email, name, and emergency contact information
+- **Flexible Login**: Log in with either email address or username
 - **View Available Runs**: Browse all scheduled runs with details including date, time, venue, meeting place, and distance
-- **User Authentication**: Secure login/logout functionality
+- **User Authentication**: Secure login/logout functionality with email-based authentication
+- **User Profiles**: Extended profiles with emergency contact details for safety during runs
 - **Sign Up for Runs**: Register for runs with a single click
 - **Cancel Sign-Ups**: Remove yourself from runs you can no longer attend
 - **Capacity Management**: Automatic prevention of sign-ups when runs are full
@@ -20,6 +23,7 @@ A Django-based web application for managing running events, allowing users to vi
 - **Capacity Monitoring**: See sign-up counts and full/available status at a glance
 - **Filtering & Search**: Filter runs by date, venue, and other criteria
 - **User Management**: Full access to Django's user management system
+- **User Profile Access**: View and manage user profiles including emergency contact information
 
 ## Installation
 
@@ -81,11 +85,16 @@ Skip steps 2 and 3 if you wish to use your native python install for the require
 
 ### For Users
 
-1. **Browse Runs**: Visit the homepage to see all available runs
-2. **Login**: Click "Login" in the header to access your account
-3. **Sign Up**: Click the "Sign Up" button next to any run with available spots
-4. **Cancel**: Click "Cancel" to remove yourself from a run
-5. **View Status**: See which runs you're signed up for (indicated by the "Cancel" button)
+1. **Register**: Click "Register" in the header to create a new account
+   - Provide your first name, last name, and email address (used for login)
+   - Set a secure password
+   - Add emergency contact information (required for safety)
+   - Optionally add phone number and date of birth
+2. **Login**: Click "Login" in the header and use your email address (or username) and password
+3. **Browse Runs**: Visit the homepage to see all available runs
+4. **Sign Up**: Click the "Sign Up" button next to any run with available spots
+5. **Cancel**: Click "Cancel" to remove yourself from a run
+6. **View Status**: See which runs you're signed up for (indicated by the "Cancel" button)
 
 ### For Administrators
 
@@ -106,22 +115,25 @@ Skip steps 2 and 3 if you wish to use your native python install for the require
 mrc-runs/
 ├── manage.py                      # Django management script
 ├── requirements.txt               # Python dependencies
-├── mrc_runs_project/             # Project settings
-│   ├── settings.py               # Main settings file
+├── mrc_runs/                     # Project settings
+│   ├── settings.py               # Main settings file (includes custom auth backend)
 │   ├── urls.py                   # URL routing
 │   └── wsgi.py                   # WSGI configuration
 └── runs/                          # Main application
-    ├── models.py                 # Data models (Run, SignUp)
+    ├── models.py                 # Data models (Run, SignUp, UserProfile)
     ├── views.py                  # View functions
+    ├── forms.py                  # Form definitions (RegistrationForm)
+    ├── backends.py               # Custom authentication backend
     ├── admin.py                  # Admin configuration
     ├── urls.py                   # App URL routing
-    ├── tests.py                  # Test suite
+    ├── tests.py                  # Test suite (35 tests)
     ├── templates/                # HTML templates
     │   ├── runs/
     │   │   ├── base.html        # Base template
     │   │   └── run_list.html    # Run listing page
     │   └── registration/
-    │       └── login.html       # Login page
+    │       ├── login.html       # Login page
+    │       └── register.html    # Registration page
     └── management/
         └── commands/
             └── create_sample_data.py  # Sample data generator
@@ -154,6 +166,43 @@ Constraints:
 - Unique together: (user, run) - prevents duplicate sign-ups
 - Validation: Prevents sign-ups when run is full
 
+### UserProfile
+Extended user profile with additional information:
+- `user`: One-to-one relationship with Django User model
+- `phone_number`: Optional phone number
+- `emergency_contact_name`: Required emergency contact name
+- `emergency_contact_phone`: Required emergency contact phone number
+- `date_of_birth`: Optional date of birth
+- `created_at`: Timestamp when profile was created
+- `updated_at`: Timestamp of last profile update
+
+Features:
+- Automatically created during user registration
+- Accessible via `user.profile` relationship
+- Managed through admin interface with inline editing
+
+## Authentication
+
+### Custom Authentication Backend
+The application uses a custom authentication backend (`EmailOrUsernameBackend`) that provides flexible login options:
+
+**Features:**
+- Users can log in with either their email address OR username
+- New users: Email becomes their username automatically during registration
+- Legacy users: Can use their original username or their email address
+- Backward compatible: No data migration required
+
+**How it works:**
+1. User enters email or username in the login form
+2. Backend checks for matching username OR email in the database
+3. Password is verified against the matched user account
+4. Session is created upon successful authentication
+
+**Security:**
+- Protection against timing attacks
+- Proper password hashing using Django's built-in system
+- Handles edge cases like duplicate emails gracefully
+
 ## Testing
 
 Run the test suite:
@@ -162,13 +211,16 @@ python manage.py test runs
 ```
 
 The test suite includes:
-- Model creation and validation tests
+- Model creation and validation tests (Run, SignUp, UserProfile)
 - Capacity enforcement tests
 - View functionality tests
 - Sign-up and cancellation tests
 - Full run behavior tests
+- User registration and form validation tests
+- Authentication backend tests (email/username login)
+- Emergency contact validation tests
 
-All 14 tests pass successfully.
+All 35 tests pass successfully.
 
 ## Security Notes
 
@@ -181,11 +233,15 @@ All 14 tests pass successfully.
 
 Potential features for future development:
 - Email notifications for sign-ups and reminders
-- User profiles with running history
-- Run statistics and analytics
-- Social features (comments, ratings)
+- Running history and personal statistics tracking
+- Run statistics and analytics dashboard
+- Social features (comments, ratings, run photos)
+- Waitlist system for full runs
+- Past run archiving with filtering
+- Social authentication (Google, Apple Sign-in)
 - Mobile-responsive design improvements
 - API endpoints for mobile apps
+- HTMX integration for dynamic interactions
 
 ## License
 
