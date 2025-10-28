@@ -42,37 +42,37 @@ Skip steps 2 and 3 if you wish to use your native python install for the require
    ```
 2. **Install venv (if not already installed)**:
    ```bash
-   pip install venv
+   pip install virtualenv
    ```
 
-2. **Create & Activate Virtual Environment**:
+3. **Create & Activate Virtual Environment**:
    ```bash
    python -m venv venv
    (linux) source venv/bin/activate
    (powershell) .venv/bin/Activate.ps1
    ```
 
-2. **Install dependencies**:
+4. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run migrations**:
+5. **Run migrations**:
    ```bash
    python manage.py migrate
    ```
 
-4. **Create a superuser** (for admin access):
+6. **Create a superuser** (for admin access):
    ```bash
    python manage.py createsuperuser
    ```
 
-5. **Create sample data** (optional):
+7. **Create sample data** (optional):
    ```bash
    python manage.py create_sample_data
    ```
 
-6. **Run the development server**:
+8. **Run the development server**:
    ```bash
    python manage.py runserver
    ```
@@ -80,6 +80,8 @@ Skip steps 2 and 3 if you wish to use your native python install for the require
 7. **Access the application**:
    - User interface: http://127.0.0.1:8000/
    - Admin interface: http://127.0.0.1:8000/admin/
+
+NOTE - the venv will need to be activated as per Step 3 whenever you are runnign the development server
 
 ## Usage
 
